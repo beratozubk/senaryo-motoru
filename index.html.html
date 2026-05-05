@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<title>Senaryo Motoru v4.5</title>
+
+<style>
+body{
+font-family:Arial;
+background:linear-gradient(135deg,#0a1a2f,#1e4f8a);
+color:white;
+padding:20px;
+}
+.grid{
+display:flex;
+flex-wrap:wrap;
+gap:6px;
+max-height:220px;
+overflow:auto;
+}
+.btn{
+padding:6px 10px;
+background:#1f4f82;
+border:1px solid #3b78b8;
+border-radius:8px;
+cursor:pointer;
+}
+.btn.active{
+background:white;
+color:black;
+}
+.output{
+margin-top:20px;
+background:#0e2a4a;
+padding:15px;
+border-radius:10px;
+}
+</style>
+</head>
+
+<body>
+
+<h2>📚 Tema</h2>
+<div id="tema" class="grid"></div>
+
+<h2>🧩 Alt Konu</h2>
+<div id="alt" class="grid"></div>
+
+<h2>🎭 Karakter</h2>
+<div id="karakter" class="grid"></div>
+
+<h2>🌍 Mekan</h2>
+<div id="mekan" class="grid"></div>
+
+<h2>🌦 Atmosfer</h2>
+<div id="atmosfer" class="grid"></div>
+
+<h2>🎭 Duygu</h2>
+<div id="duygu" class="grid"></div>
+
+<h2>⚙️ Gelişmiş Panel</h2>
+
+<h3>Derinlik</h3>
+<div id="derinlik" class="grid"></div>
+
+<h3>Twist</h3>
+<div id="twist" class="grid"></div>
+
+<h3>Yapı</h3>
+<div id="yapi" class="grid"></div>
+
+<h3>Yoğunluk</h3>
+<div id="yogunluk" class="grid"></div>
+
+<button onclick="uret()">🎬 3 SENARYO ÜRET</button>
+
+<div id="out" class="output"></div>
+
+<script>
+
+/* FULL TEMA HAVUZU */
+const data={
+"SABIR":["Zorluklara dayanma","Beklemek zorunda kalmak","Öfkeyi kontrol etme","Geç gelen başarı","Haksızlığa sabır","Aile içinde sabır","Eğitim sürecinde sabır","Sabır sonrası değişim"],
+"MERHAMET":["Empati","Affetmek","Zayıfa yardım","Hayvanlara merhamet","Doğaya merhamet","Yargılamamak","İçten iyilik","Sabırla yaklaşmak"],
+"DOĞRULUK":["Dürüstlük","Yalanla yüzleşme","Sözünde durma","Güven kazanma","Emanet","Şeffaflık","Tutarlılık","Hata kabul"],
+"YARDIMLAŞMA":["Paylaşmak","Gönüllülük","Dayanışma","Aile yardımı","Arkadaş yardımı","Toplumsal destek","Sessiz iyilik","Zor zamanda destek"],
+"AZİM":["Vazgeçmemek","Hedefe odaklanma","Disiplin","Tekrar denemek","Başarısızlık sonrası kalkmak","Kararlılık","Kendini geliştirme","Engellere rağmen ilerlemek"],
+"ADALET":["Eşitlik","Hak gözetmek","Haksızlığa karşı durmak","Adil paylaşım","Tarafsızlık","Kurallara uyum","Vicdan","Güçlüye karşı doğru"],
+"SEVGİ":["Aile sevgisi","Arkadaş sevgisi","İnsan sevgisi","Şefkat","Bağlılık","Fedakarlık","Affetme","Sevgiyle iletişim"],
+"SAYGI":["Büyüklere saygı","Küçüklere saygı","Farklılıklara saygı","Doğaya saygı","Nezaket","Mahremiyet","Dinlemek","İnsan hakları"]
+};
+
+/* GENİŞ HAVUZ */
+const karakter=[
+"Yalnız çocuk","İki arkadaş","Aile","Sınıf","Topluluk",
+"İçine kapanık biri","Hedefi olan genç","Vicdanıyla savaşan biri"
+];
+
+const mekan=[
+"Okul","Ev","Sokak","Park","Hastane",
+"Kütüphane","Orman","Rüya sahnesi"
+];
+
+const atmosfer=[
+"Yağmurlu","Güneşli","Sisli","Karlı",
+"Gece","Gün doğumu","Gün batımı","Fırtınalı"
+];
+
+const duygu=[
+"Dram","Hüzün","Umut","Mutluluk",
+"Kaygı","Öfke","Pişmanlık","Yalnızlık"
+];
+
+const derinlik=[
+"Basit","Orta","Çok katmanlı","Sembol",
+"Açık yorum","Derin psikolojik","Minimal","Yoğun metafor"
+];
+
+const twist=[
+"Yok","Ters köşe","Gerçek en sonda","İyi kötü çıkar",
+"Yanlış anlama çözülür","Beklenmeyen final","Kimlik açığa çıkar","Zaman oyunu"
+];
+
+const yapi=[
+"Klasik","Flashback","Ters akış","Paralel",
+"Tek sahne","Döngüsel","Açık uçlu","Kesit anlatım"
+];
+
+const yogunluk=[
+"Hafif","Orta","Yoğun","Çok yoğun",
+"Duygusal patlama","Sakin","Gerilimli","Dalgalı"
+];
+
+let state={};
+
+/* BUTTON */
+function create(list,id){
+let box=document.getElementById(id);
+list.forEach(x=>{
+let b=document.createElement("div");
+b.className="btn";
+b.innerText=x;
+b.onclick=()=>{
+[...box.children].forEach(i=>i.classList.remove("active"));
+b.classList.add("active");
+state[id]=x;
+if(id==="tema") loadAlt(x);
+};
+box.appendChild(b);
+});
+}
+
+/* ALT BAĞLANTI */
+function loadAlt(t){
+let box=document.getElementById("alt");
+box.innerHTML="";
+data[t].forEach(x=>{
+let b=document.createElement("div");
+b.className="btn";
+b.innerText=x;
+b.onclick=()=>{
+[...box.children].forEach(i=>i.classList.remove("active"));
+b.classList.add("active");
+state.alt=x;
+};
+box.appendChild(b);
+});
+}
+
+/* SENARYO */
+function senaryo(i){
+
+let aksiyon=[
+"kaçmayı seçer",
+"yüzleşir",
+"fedakarlık yapar"
+];
+
+return `
+<h3>🎬 Senaryo ${i}</h3>
+
+<b>Giriş:</b> ${state.karakter}, ${state.mekan} ortamında yaşayan bir karakterdir. 
+${state.duygu} içindedir.
+
+<b>Gelişme:</b> ${state.tema} teması ve "${state.alt}" üzerinden zor bir süreç yaşar. 
+${state.atmosfer} atmosfer baskıyı artırır.
+
+<b>Kırılma:</b> Karakter ${aksiyon[i-1]}.
+
+<b>Final:</b> ${state.twist}. Hayatı değişir.
+
+<b>Yapı:</b> ${state.yapi} | ${state.derinlik}
+
+<b>Yoğunluk:</b> ${state.yogunluk}
+
+<b>🎨 Pixar Prompt:</b><br>
+Pixar 3D, ${state.mekan}, ${state.atmosfer}, cinematic lighting, emotional close-up, depth of field
+`;
+}
+
+function uret(){
+
+if(!state.tema || !state.alt || !state.karakter || !state.mekan || !state.duygu){
+alert("Tüm seçimleri yap!");
+return;
+}
+
+document.getElementById("out").innerHTML=
+senaryo(1)+senaryo(2)+senaryo(3);
+
+}
+
+/* INIT */
+create(Object.keys(data),"tema");
+create(karakter,"karakter");
+create(mekan,"mekan");
+create(atmosfer,"atmosfer");
+create(duygu,"duygu");
+create(derinlik,"derinlik");
+create(twist,"twist");
+create(yapi,"yapi");
+create(yogunluk,"yogunluk");
+
+</script>
+
+</body>
+</html>
